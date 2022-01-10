@@ -10,9 +10,47 @@ import { createProductHandler, deleteProductHandler, getListProductHandler, getP
 
 
 function routes(app : Express) {
-    app.get("/healtcheck", (req: Request, res: Response) => {
+    // contoh swagger
+    /**
+     * @openapi
+     * /healthcheck:
+     *  get:
+     *     tags:
+     *      - healthcheck
+     *     description: "check"
+     *     responses: 
+     *       200:
+     *          description: app running sucessfully
+     */
+    app.get("/healthcheck", (req: Request, res: Response) => {
         return res.sendStatus(200);
     });
+
+  /**
+   * @openapi
+   * '/api/users':
+   *  post:
+   *     tags:
+   *     - User
+   *     summary: Register a user
+   *     requestBody:
+   *      required: true
+   *      content:
+   *        application/json:
+   *           schema:
+   *              $ref: '#/components/schemas/CreateUserInput'
+   *     responses:
+   *      200:
+   *        description: Success
+   *        content:
+   *          application/json:
+   *            schema:
+   *              $ref: '#/components/schemas/CreateUserResponse'
+   *      409:
+   *        description: Conflict
+   *      400:
+   *        description: Bad request
+   */
 
     app.post("/api/users", validate(createUserSchema), createUserHandler);
 
@@ -25,6 +63,31 @@ function routes(app : Express) {
 
     app.get("/api/product",getListProductHandler);
     app.post("/api/product",[requireUser, validate(createProductSchema)] ,createProductHandler);
+
+
+  /**
+   * @openapi
+   * '/api/products/{productId}':
+   *  get:
+   *     tags:
+   *     - Products
+   *     summary: Get a single product by the productId
+   *     parameters:
+   *      - name: productId
+   *        in: path
+   *        description: The id of the product
+   *        required: true
+   *     responses:
+   *       200:
+   *         description: Success
+   *         content:
+   *          application/json:
+   *           schema:
+   *              $ref: '#/components/schema/Product'
+   *       404:
+   *         description: Product not found
+   */
+
     app.put("/api/product/:productId",[requireUser, validate(updateProductSchema)] ,updateProductHandler);
     app.get("/api/product/:productId",[validate(getProductSchema)] ,getProductHandler);
     app.delete("/api/product/:productId",[requireUser, validate(deleteProductSchema)] ,deleteProductHandler);
